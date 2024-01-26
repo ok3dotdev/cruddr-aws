@@ -4,6 +4,7 @@ from flask_cors import CORS, cross_origin
 import os
 
 from services.home_activities import *
+from services.notifications_activities import *
 from services.user_activities import *
 from services.create_activity import *
 from services.create_reply import *
@@ -13,26 +14,45 @@ from services.messages import *
 from services.create_message import *
 from services.show_activity import *
 
+
 app = Flask(__name__)
+
+# Load environment variables
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
+
+print("FRONTEND_URL:", frontend)
+print("BACKEND_URL:", backend)
+
+# Construct origins list
 origins = [frontend, backend]
+
+print("Origins:", origins)
+
+# Initialize Flask-CORS
 cors = CORS(
-  app, 
-  resources={r"/api/*": {"origins": origins}},
-  expose_headers="location,link",
-  allow_headers="content-type,if-modified-since",
-  methods="OPTIONS,GET,HEAD,POST"
+    app,
+    resources={r"/api/*": {"origins": origins}},
+    expose_headers="location,link",
+    allow_headers="content-type,if-modified-since",
+    methods="OPTIONS,GET,HEAD,POST"
 )
 
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
   user_handle  = 'andrewbrown'
   model = MessageGroups.run(user_handle=user_handle)
+
+  print("Error occurred", model['errors'])
   if model['errors'] is not None:
     return model['errors'], 422
   else:
     return model['data'], 200
+
+@app.route("/api/activities/notifications", methods=['GET'])
+def data_notifications():
+  data = NotificationsActivities.run()
+  return data, 200
 
 @app.route("/api/messages/@<string:handle>", methods=['GET'])
 def data_messages(handle):
