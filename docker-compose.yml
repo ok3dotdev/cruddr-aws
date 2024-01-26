@@ -4,11 +4,22 @@ services:
     environment:
       FRONTEND_URL: '*'
       BACKEND_URL: '*'
+      AWS_ACCESS_KEY_ID: AKIAW3MEEWI6L6SJUYON
+      # AWS_SECRET_ACCESS_KEY: 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
+      # AWS_DEFAULT_REGION: ca-central-1
     build: ./backend-flask
     ports:
       - '4567:4567'
     volumes:
       - ./backend-flask:/backend-flask
+  frontend-react-js:
+    environment:
+      REACT_APP_BACKEND_URL: http://127.0.0.1:4567
+    build: ./frontend-react-js
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend-react-js:/frontend-react-js
   dynamodb-local:
     # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
     # We needed to add user:root to get this working.
@@ -31,14 +42,6 @@ services:
       - '5432:5432'
     volumes: 
       - db:/var/lib/postgresql/data
-  frontend-react-js:
-    environment:
-      REACT_APP_BACKEND_URL: http://127.0.0.1:4567
-    build: ./frontend-react-js
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./frontend-react-js:/frontend-react-js
 networks:
   internal-network:
     driver: bridge
